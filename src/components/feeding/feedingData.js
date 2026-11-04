@@ -1,0 +1,28 @@
+// food: emoji getoond tijdens voer-animatie
+// from: richting waaruit het voedsel binnenkomt ('top'|'right'|'left')
+export const FEEDING_DATA = {
+  olifant:   { food: '🥕',  label: 'wortels',       from: 'top'   },
+  aap:       { food: '🍌',  label: 'banaan',         from: 'right' },
+  leeuw:     { food: '🍖',  label: 'vlees',          from: 'right' },
+  pinguin:   { food: '🐟',  label: 'vis',            from: 'top'   },
+  giraf:     { food: '🌿',  label: 'bladeren',       from: 'top'   },
+  beer:      { food: '🍯',  label: 'honing',         from: 'right' },
+  haan:      { food: '🌾',  label: 'graan',          from: 'top'   },
+  paard:     { food: '🥕',  label: 'wortel',         from: 'right' },
+  nijlpaard: { food: '🍉',  label: 'watermeloen',    from: 'top'   },
+  kameel:    { food: '🌴',  label: 'palmbladeren',   from: 'top'   },
+  flamingo:  { food: '🦐',  label: 'garnalen',       from: 'left'  },
+  krokodil:  { food: '🐟',  label: 'vis',            from: 'right' },
+  papegaai:  { food: '🌻',  label: 'zonnebloempit',  from: 'right' },
+  zebra:     { food: '🌿',  label: 'gras',           from: 'top'   },
+  kangoeroe: { food: '🌿',  label: 'bladeren',       from: 'right' },
+  luiaard:   { food: '🍃',  label: 'blad',           from: 'top'   },
+  uil:       { food: '🐭',  label: 'muis',           from: 'top'   },
+  vos:       { food: '🫐',  label: 'bessen',         from: 'right' },
+  bij:       { food: '🌸',  label: 'bloem',          from: 'top'   },
+  vlinder:   { food: '🌺',  label: 'bloem',          from: 'top'   },
+  schildpad: { food: '🥬',  label: 'sla',            from: 'right' },
+  koe:       { food: '🌿',  label: 'gras',           from: 'top'   },
+  egel:      { food: '🍎',  label: 'appel',          from: 'right' },
+  vleermuis: { food: '🦟',  label: 'insect',         from: 'top'   },
+}
