@@ -17,7 +17,7 @@ export default function StartScreen({ onStart }) {
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
-    <div className="relative flex flex-col items-center justify-center h-full bg-gradient-to-b from-sky-200 to-green-200 overflow-hidden">
+    <div className="relative flex flex-col items-center justify-center min-h-full py-16 bg-gradient-to-b from-sky-200 to-green-200 overflow-hidden">
 
       {/* Background decorations */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
@@ -31,14 +31,14 @@ export default function StartScreen({ onStart }) {
 
       {/* Main content */}
       <motion.div
-        className="flex flex-col items-center gap-6 z-10 px-6 text-center"
+        className="flex flex-col items-center gap-5 sm:gap-6 z-10 px-6 text-center"
         initial={{ y: 30, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.6, ease: 'easeOut' }}
       >
         {/* Pim the zookeeper */}
         <motion.div
-          className="text-8xl"
+          className="text-7xl sm:text-8xl"
           animate={{ rotate: [-3, 3, -3] }}
           transition={{ repeat: Infinity, duration: 2, ease: 'easeInOut' }}
         >

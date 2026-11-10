@@ -7,6 +7,8 @@ import { ANIMAL_COMPONENTS } from './animals/index'
 import FeedingOverlay from './feeding/FeedingOverlay'
 import { useSpeech } from '../hooks/useSpeech'
 import { rewardPhrases } from '../data/rewardPhrases'
+import { getAudioContext } from '../utils/audio'
+import { useViewport } from '../hooks/useViewport'
 
 // Fases: 'solving' → 'celebrating' (confetti) → 'feeding' → next
 const CONFETTI_MS = 1200
@@ -14,7 +16,8 @@ const FEEDING_MS  = 2400
 
 function playSuccess() {
   try {
-    const ctx = new (window.AudioContext || window.webkitAudioContext)()
+    const ctx = getAudioContext()
+    if (!ctx) return
     const notes = [523, 659, 784, 1047]
     notes.forEach((freq, i) => {
       const osc = ctx.createOscillator()
@@ -141,33 +144,44 @@ export default function AnimalScene({ animal, level, animalIndex, totalAnimals, 
   const AnimalSVG = ANIMAL_COMPONENTS[animal.id]
   const isEating = phase === 'feeding'
 
+  // ── Maten afstemmen op het scherm, zodat alles (incl. "Klaar!") past ──
+  const { w: vw, h: vh } = useViewport()
+  const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v))
+  const animalSize = Math.round(clamp(vh * 0.2, 90, 200))
+  const bubbleH = vw < 420 ? 96 : 80
+  // voortgang + dier + ballon + digitale tijd + knop + tussenruimtes
+  const reserved = 36 + animalSize + bubbleH + 80 + 64 + 52
+  const clockSize = Math.round(clamp(Math.min(vw - 32, vh - reserved), 170, 300))
+  const compact = vh < 700
+
   return (
-    <div className={`flex flex-col h-full bg-gradient-to-b ${animal.bg} overflow-hidden relative`}>
+    <div className={`flex flex-col min-h-full bg-gradient-to-b ${animal.bg} overflow-x-hidden relative`}>
       <Confetti active={phase === 'celebrating'} />
 
       {/* Progress bar */}
-      <div className="flex items-center justify-between px-5 pt-4 pb-1 shrink-0">
-        <div className="flex gap-2">
+      {/* Rechts ruimte laten voor de 🏠/⚙️-knoppen */}
+      <div className="flex items-center gap-3 pl-4 pt-4 pb-1 shrink-0" style={{ paddingRight: 128, minHeight: 48 }}>
+        <div className="flex flex-wrap gap-1 sm:gap-2">
           {Array.from({ length: totalAnimals }, (_, i) => (
-            <div key={i} className={`w-3 h-3 rounded-full transition-colors ${
+            <div key={i} className={`w-2 h-2 sm:w-3 sm:h-3 rounded-full transition-colors ${
               i < animalIndex ? 'bg-green-500' : i === animalIndex ? 'bg-amber-500' : 'bg-white/50'
             }`}/>
           ))}
         </div>
-        <span className="text-sm font-bold text-white/80">{animalIndex + 1} / {totalAnimals}</span>
+        <span className="text-sm font-bold text-white/90 whitespace-nowrap drop-shadow">{animalIndex + 1} / {totalAnimals}</span>
       </div>
 
       {/* Animal + scene */}
       <div className="flex flex-col items-center px-4 shrink-0">
         {/* SVG dier */}
-        <div className="relative flex items-center justify-center" style={{ height: 200 }}>
+        <div className="relative flex items-center justify-center" style={{ height: animalSize }}>
           <motion.div
             animate={isEating ? { x: [0, 8, -4, 0], y: [0, -6, 0] } : {}}
             transition={isEating ? { duration: 0.5, repeat: 2 } : {}}
           >
             {AnimalSVG
-              ? <AnimalSVG size={200} eating={isEating} />
-              : <span style={{ fontSize: 96 }}>{animal.emoji}</span>
+              ? <AnimalSVG size={animalSize} eating={isEating} />
+              : <span style={{ fontSize: animalSize * 0.48 }}>{animal.emoji}</span>
             }
           </motion.div>
 
@@ -177,9 +191,9 @@ export default function AnimalScene({ animal, level, animalIndex, totalAnimals, 
         </div>
 
         {/* Pim */}
-        <div className="absolute top-12 right-6">
+        <div className="absolute right-4" style={{ top: 56 }}>
           <motion.div
-            className="text-4xl"
+            className={compact ? 'text-3xl' : 'text-4xl'}
             animate={phase !== 'solving' ? { rotate: [-10, 10, -10, 10, 0], scale: [1, 1.2, 1] } : {}}
             transition={{ duration: 0.5 }}
           >
@@ -193,8 +207,8 @@ export default function AnimalScene({ animal, level, animalIndex, totalAnimals, 
             {phase === 'solving' ? (
               <motion.div
                 key="instruction"
-                className="flex-1 bg-white rounded-3xl px-5 py-3 shadow-lg text-center relative"
-                style={{ minHeight: 64 }}
+                className="flex-1 bg-white rounded-3xl px-4 py-2 shadow-lg text-center relative"
+                style={{ minHeight: 56 }}
                 initial={{ scale: 0.9, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
                 exit={{ scale: 0.9, opacity: 0 }}
@@ -202,7 +216,7 @@ export default function AnimalScene({ animal, level, animalIndex, totalAnimals, 
                 <div className="absolute -top-3 left-1/2 -translate-x-1/2 w-0 h-0"
                   style={{ borderLeft: '10px solid transparent', borderRight: '10px solid transparent', borderBottom: '12px solid white' }}
                 />
-                <p className="text-amber-900 font-bold" style={{ fontSize: 17, lineHeight: 1.4 }}>
+                <p className="text-amber-900 font-bold" style={{ fontSize: compact ? 15 : 17, lineHeight: 1.35 }}>
                   {parts.map((part, i) =>
                     i % 2 === 1
                       ? <strong key={i} className="text-amber-600">{part}</strong>
@@ -243,7 +257,7 @@ export default function AnimalScene({ animal, level, animalIndex, totalAnimals, 
       </div>
 
       {/* Klok + bevestig-knop */}
-      <div className="flex flex-col items-center justify-center flex-1 gap-3 py-2">
+      <div className="flex flex-col items-center justify-center flex-1 gap-3 pt-3 pb-4">
         <Clock
           hour={hour}
           minute={minute}
@@ -251,6 +265,7 @@ export default function AnimalScene({ animal, level, animalIndex, totalAnimals, 
           minuteFixed={level.minuteFixed}
           onTimeChange={handleTimeChange}
           levelId={level.id}
+          size={clockSize}
         />
 
         <motion.button
@@ -261,7 +276,7 @@ export default function AnimalScene({ animal, level, animalIndex, totalAnimals, 
               ? 'bg-green-400 hover:bg-green-500 active:bg-green-600 text-white cursor-pointer'
               : 'bg-white/40 text-white/60 cursor-not-allowed'
             }`}
-          style={{ fontSize: 22, minHeight: 64, minWidth: 200 }}
+          style={{ fontSize: 22, minHeight: 60, minWidth: 200 }}
           whileTap={correct && phase === 'solving' ? { scale: 0.95 } : {}}
           animate={correct && phase === 'solving' ? { scale: [1, 1.05, 1] } : { scale: 1 }}
           transition={correct && phase === 'solving' ? { repeat: Infinity, duration: 1.5 } : {}}

@@ -1,6 +1,7 @@
 import React, { useCallback, useRef } from 'react'
 import { useDragRotation } from '../hooks/useDragRotation'
 import { formatDigital } from '../utils/timeFormat'
+import { getAudioContext } from '../utils/audio'
 
 const SIZE = 300
 const CENTER = SIZE / 2
@@ -42,7 +43,8 @@ const minWrap = {
 
 function playTick() {
   try {
-    const ctx = new (window.AudioContext || window.webkitAudioContext)()
+    const ctx = getAudioContext()
+    if (!ctx) return
     const osc = ctx.createOscillator()
     const gain = ctx.createGain()
     osc.connect(gain)
@@ -70,7 +72,8 @@ function snapToNearest(angle, snapMinutes) {
   return best
 }
 
-export default function Clock({ hour, minute, snapMinutes, minuteFixed, onTimeChange }) {
+export default function Clock({ hour, minute, snapMinutes, minuteFixed, onTimeChange, size = SIZE }) {
+  const scale = size / SIZE
   const centerRef = useRef(null)
   const lastTickRef = useRef({ h: hour, m: minute })
   const tickTimeout = useRef(null)
@@ -120,12 +123,13 @@ export default function Clock({ hour, minute, snapMinutes, minuteFixed, onTimeCh
   const minuteMarkers = Array.from({ length: 60 }, (_, i) => i)
 
   return (
-    <div className="flex flex-col items-center gap-3 no-select">
-      {/* Analoge klok */}
+    <div className="flex flex-col items-center no-select" style={{ gap: Math.round(12 * scale) }}>
+      {/* Analoge klok — getekend op 300px en geschaald naar de schermgrootte */}
+      <div style={{ width: size, height: size }}>
       <div
         ref={centerRef}
         className="relative rounded-full bg-white shadow-2xl border-4 border-amber-400"
-        style={{ width: SIZE, height: SIZE }}
+        style={{ width: SIZE, height: SIZE, transform: `scale(${scale})`, transformOrigin: 'top left' }}
       >
         {/* Minuut-streepjes */}
         {minuteMarkers.map(i => {
@@ -235,10 +239,14 @@ export default function Clock({ hour, minute, snapMinutes, minuteFixed, onTimeCh
           style={{ width: 16, height: 16, left: CENTER - 8, top: CENTER - 8, zIndex: 4 }}
         />
       </div>
+      </div>
 
       {/* Digitale weergave */}
-      <div className="bg-amber-50 border-4 border-amber-400 rounded-2xl px-8 py-3 shadow-lg">
-        <span className="font-black text-amber-900 tabular-nums" style={{ fontSize: 48, letterSpacing: 4 }}>
+      <div
+        className="bg-amber-50 border-4 border-amber-400 rounded-2xl shadow-lg"
+        style={{ padding: `${Math.round(Math.max(4, 12 * scale))}px ${Math.round(Math.max(16, 32 * scale))}px` }}
+      >
+        <span className="font-black text-amber-900 tabular-nums" style={{ fontSize: Math.round(Math.max(30, 48 * scale)), letterSpacing: 4, lineHeight: 1.2 }}>
           {formatDigital(hour, minute)}
         </span>
       </div>

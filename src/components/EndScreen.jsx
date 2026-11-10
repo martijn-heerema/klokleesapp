@@ -17,7 +17,7 @@ export default function EndScreen({ level, onRestart }) {
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
-    <div className="flex flex-col items-center justify-center h-full bg-gradient-to-b from-sky-200 to-green-300 overflow-hidden relative">
+    <div className="flex flex-col items-center justify-center min-h-full py-16 bg-gradient-to-b from-sky-200 to-green-300 overflow-hidden relative">
 
       {/* Confetti-like background */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden">
@@ -41,7 +41,7 @@ export default function EndScreen({ level, onRestart }) {
         transition={{ duration: 0.7, ease: 'easeOut' }}
       >
         <motion.div
-          className="text-8xl"
+          className="text-7xl sm:text-8xl"
           animate={{ scale: [1, 1.15, 1] }}
           transition={{ repeat: Infinity, duration: 1.5, ease: 'easeInOut' }}
         >

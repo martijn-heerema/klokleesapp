@@ -18,13 +18,13 @@ export default function ParentMenu({ open, currentLevel, onSelectLevel, onClose 
 
           {/* Modal */}
           <motion.div
-            className="fixed inset-0 z-50 flex items-center justify-center p-6"
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 overflow-y-auto"
             initial={{ scale: 0.8, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0.8, opacity: 0 }}
             transition={{ type: 'spring', stiffness: 300, damping: 25 }}
           >
-            <div className="bg-white rounded-3xl shadow-2xl p-8 w-full max-w-sm relative">
+            <div className="bg-white rounded-3xl shadow-2xl p-6 sm:p-8 w-full max-w-sm relative my-auto">
               {/* Close button */}
               <button
                 onClick={onClose}

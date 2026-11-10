@@ -40,7 +40,7 @@ export default function MilestoneScreen({ milestone, onContinue }) {
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
-    <div className={`flex flex-col items-center justify-center h-full bg-gradient-to-b ${data.bg} overflow-hidden relative`}>
+    <div className={`flex flex-col items-center justify-center min-h-full py-16 bg-gradient-to-b ${data.bg} overflow-hidden relative`}>
       <Confetti active />
 
       <motion.div
@@ -51,7 +51,7 @@ export default function MilestoneScreen({ milestone, onContinue }) {
       >
         {/* Groot emoji */}
         <motion.div
-          className="text-9xl"
+          className="text-8xl sm:text-9xl"
           animate={{ scale: [1, 1.2, 1], rotate: [0, -8, 8, 0] }}
           transition={{ duration: 1.2, ease: 'easeInOut', repeat: Infinity, repeatDelay: 1.5 }}
         >
