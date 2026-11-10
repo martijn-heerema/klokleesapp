@@ -6,6 +6,7 @@ import EndScreen from './components/EndScreen'
 import MilestoneScreen from './components/MilestoneScreen'
 import ParentMenu from './components/ParentMenu'
 import { LEVELS } from './data/levels'
+import { unlockAudio } from './utils/audio'
 
 const MILESTONES = [6, 12, 18]
 
@@ -34,6 +35,7 @@ export default function App() {
   const level = LEVELS.find(l => l.id === levelId) ?? LEVELS[0]
 
   const handleStart = useCallback(() => {
+    unlockAudio()
     setAnimalIndex(0)
     setScreen('animal')
   }, [])
@@ -107,7 +109,7 @@ export default function App() {
         {screen === 'start' && (
           <motion.div
             key="start"
-            className="absolute inset-0"
+            className="absolute inset-0 overflow-y-auto overflow-x-hidden scroll-area"
             variants={pageVariants}
             initial="initial"
             animate="animate"
@@ -121,7 +123,7 @@ export default function App() {
         {screen === 'animal' && (
           <motion.div
             key={`animal-${animalIndex}`}
-            className="absolute inset-0"
+            className="absolute inset-0 overflow-y-auto overflow-x-hidden scroll-area"
             variants={pageVariants}
             initial="initial"
             animate="animate"
@@ -141,7 +143,7 @@ export default function App() {
         {screen === 'milestone' && (
           <motion.div
             key={`milestone-${milestone}`}
-            className="absolute inset-0"
+            className="absolute inset-0 overflow-y-auto overflow-x-hidden scroll-area"
             variants={pageVariants}
             initial="initial"
             animate="animate"
@@ -158,7 +160,7 @@ export default function App() {
         {screen === 'end' && (
           <motion.div
             key="end"
-            className="absolute inset-0"
+            className="absolute inset-0 overflow-y-auto overflow-x-hidden scroll-area"
             variants={pageVariants}
             initial="initial"
             animate="animate"

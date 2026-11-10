@@ -21,6 +21,13 @@ body {
   overflow: hidden;
 }
 
+/* Schermen mogen verticaal scrollen als ze niet passen (kleine telefoons) */
+.scroll-area {
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+  touch-action: pan-y;
+}
+
 /* Prevent text selection during drag */
 .no-select {
   user-select: none;
