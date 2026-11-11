@@ -119,6 +119,56 @@ export default function Clock({ hour, minute, snapMinutes, minuteFixed, onTimeCh
   const minuteAngle = minute * 6
   const hourAngle   = (hour % 12) * 30 + (minute / 60) * 30
 
+  // ── Kies welke wijzer je pakt ──
+  // De wijzers kunnen over elkaar liggen (bijv. 12:00). Daarom beslist de
+  // wijzerplaat zelf: welke wijzer ligt in de richting van je vinger, en als
+  // het allebei kan: dicht bij het midden = uurwijzer, verder weg = minuten.
+  const angleDiff = (a, b) => {
+    const d = Math.abs(a - b) % 360
+    return d > 180 ? 360 - d : d
+  }
+  const pickHand = useCallback((clientX, clientY) => {
+    const el = centerRef.current
+    if (!el) return null
+    const rect = el.getBoundingClientRect()
+    const s = rect.width / SIZE                 // huidige schaal
+    const dx = (clientX - (rect.left + rect.width / 2)) / s
+    const dy = (clientY - (rect.top + rect.height / 2)) / s
+    const r = Math.hypot(dx, dy)
+    if (r > CENTER + 10) return null            // buiten de klok
+    let ang = Math.atan2(dx, -dy) * (180 / Math.PI)
+    if (ang < 0) ang += 360
+
+    // Hoekmarge = breedte van het sleepgebied op deze afstand (min. 22°)
+    const tol = Math.max(22, (Math.atan2(HIT_SIDE + 6, Math.max(r, 1)) * 180) / Math.PI)
+    const dHour = angleDiff(ang, hourAngle)
+    const dMin  = angleDiff(ang, minuteAngle)
+    const hourOk = dHour <= tol && r <= HOUR_H + HIT_TIP + 6
+    const minOk  = !minuteFixed && dMin <= tol && r <= MIN_H + HIT_TIP + 6
+
+    if (hourOk && minOk) {
+      // Overlap: midden-gebied hoort bij de uurwijzer
+      return r <= HOUR_H * 0.9 ? 'hour' : 'minute'
+    }
+    if (hourOk) return 'hour'
+    if (minOk) return 'minute'
+    return null
+  }, [hourAngle, minuteAngle, minuteFixed])
+
+  const onFaceMouseDown = useCallback((e) => {
+    const hand = pickHand(e.clientX, e.clientY)
+    if (hand === 'hour') hourDrag.onMouseDown(e)
+    else if (hand === 'minute') minuteDrag.onMouseDown(e)
+  }, [pickHand, hourDrag, minuteDrag])
+
+  const onFaceTouchStart = useCallback((e) => {
+    const t = e.touches[0]
+    if (!t) return
+    const hand = pickHand(t.clientX, t.clientY)
+    if (hand === 'hour') hourDrag.onTouchStart(e)
+    else if (hand === 'minute') minuteDrag.onTouchStart(e)
+  }, [pickHand, hourDrag, minuteDrag])
+
   const hourMarkers   = Array.from({ length: 12 }, (_, i) => i + 1)
   const minuteMarkers = Array.from({ length: 60 }, (_, i) => i)
 
@@ -129,7 +179,9 @@ export default function Clock({ hour, minute, snapMinutes, minuteFixed, onTimeCh
       <div
         ref={centerRef}
         className="relative rounded-full bg-white shadow-2xl border-4 border-amber-400"
-        style={{ width: SIZE, height: SIZE, transform: `scale(${scale})`, transformOrigin: 'top left' }}
+        style={{ width: SIZE, height: SIZE, transform: `scale(${scale})`, transformOrigin: 'top left', touchAction: 'none' }}
+        onMouseDown={onFaceMouseDown}
+        onTouchStart={onFaceTouchStart}
       >
         {/* Minuut-streepjes */}
         {minuteMarkers.map(i => {
@@ -181,8 +233,8 @@ export default function Clock({ hour, minute, snapMinutes, minuteFixed, onTimeCh
             touchAction: 'none',
             background: 'transparent',
             zIndex: 2,
+            pointerEvents: 'none',
           }}
-          {...hourDrag}
         >
           {/* Visuele uurwijzer */}
           <div
@@ -214,8 +266,8 @@ export default function Clock({ hour, minute, snapMinutes, minuteFixed, onTimeCh
             touchAction: 'none',
             background: 'transparent',
             zIndex: 3,
+            pointerEvents: 'none',
           }}
-          {...(minuteFixed ? {} : minuteDrag)}
         >
           {/* Visuele minutenwijzer */}
           <div
